@@ -113,7 +113,7 @@ extension String {
         guard numberLength >= 13 && numberLength <= 19 else {
             return false
         }
-        guard let array = self.reversed().map({Int(String($0))}) as? [Int] else {
+        guard let array = self.reversed().map({$0.wholeNumberValue}) as? [Int] else {
             return false
         }
         let result: (Int, Int) = array.lazy.enumerated().reduce((0, 0)) { (arg0, arg1) -> (Int, Int) in
