@@ -35,7 +35,7 @@ public class Regex {
 
     public func test(testStr: String) -> Bool {
         let matches = self.matches(testStr: testStr)
-        return matches.count > 0
+        return matches.isEmpty == false
     }
 
 //    class func escapeStr(str: String) -> String {
