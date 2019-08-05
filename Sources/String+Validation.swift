@@ -27,7 +27,7 @@ extension String {
         }
         return false
     }
-    /// syk: 验证日期是否合法
+    /// 验证日期是否合法
     public var isValidateDate: Bool {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
@@ -135,49 +135,41 @@ extension String {
     }
 }
 extension String {
-    /// syk: 判断输入是否为身份证号码
+    /// 判断输入是否为身份证号码
     public var isIdentificationNo: Bool {
         var result: Bool = false
-        if self.isValidate(by: "^[0-9]{15}$|^[0-9]{18}$|^[0-9]{17}([0-9]|X|x)$") && calculateIdentificationNo(strIdentificationNo: self as NSString) {
+        if self.isValidate(by: "^[0-9]{15}$|^[0-9]{18}$|^[0-9]{17}([0-9]|X|x)$") && calculateIdentificationNo {
             result = true
         }
         return result
     }
-    private func calculateIdentificationNo(strIdentificationNo: NSString) -> Bool {
-        var result: Bool = false
-
-        if strIdentificationNo.length == 18 {
-            let dateStr = strIdentificationNo.substring(with: NSRange(location: 6, length: 8))
-            if !dateStr.isValidateDate {
-                return result
-            }
-            let weightingCoefficient = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
-            let validateNums = ["1", "0", "x", "9", "8", "7", "6", "5", "4", "3", "2"]
-
-            var sum: Int = 0
-            for i in 0..<weightingCoefficient.count {
-                let bitNum = (strIdentificationNo.substring(with: NSRange(location: i, length: 1)) as NSString).integerValue
-                let num = weightingCoefficient[i]
-
-                let bit = bitNum*num
-
-                sum += bit
-            }
-
-            let remainder = sum%11
-            let validateBit = validateNums[remainder]
-            let vBit = strIdentificationNo.substring(with: NSRange(location: strIdentificationNo.length-1, length: 1)).lowercased()
-
-            if validateBit == vBit {
-                result = true
-            }
-        } else if strIdentificationNo.length == 15 {
-            let str = "19"+strIdentificationNo.substring(with: NSRange(location: 6, length: 6))
-            if str.isValidateDate {
-                result = true
-            }
+    subscript (r: Range<Int>) -> Substring {
+        let start = index(startIndex, offsetBy: r.lowerBound)
+        let end = index(startIndex, offsetBy: r.upperBound)
+        return self[start..<end]
+    }
+    private var calculateIdentificationNo: Bool {
+        let count = self.count
+        if count == 15 {
+            return ("19" + self[6..<12]).isValidateDate
         }
+        guard count == 18 else {
+            return false
+        }
+        guard String(self[6..<14]).isValidateDate else {
+            return false
+        }
+        //将前17位加权因子保存在数组里
+        let weightingCoefficient = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
+        //这是除以11后，可能产生的11位余数、验证码，也保存成数组
+        let validateNums = ["1", "0", "x", "9", "8", "7", "6", "5", "4", "3", "2"]
 
-        return result
+        //用来保存前17位各自乖以加权因子后的总和 并 取余数计算出校验码所在数组的位置
+        let remainder: Int = zip(weightingCoefficient, self).reduce(0) { (result, arg1) -> Int in
+            let (num, char) = arg1
+            return result + (char.wholeNumberValue ?? 0) * num
+        } % 11
+        //得到最后一位身份证号码 校验
+        return validateNums[remainder] == self.last!.lowercased()
     }
 }
