@@ -106,32 +106,37 @@ extension String {
 extension String {
     //判断是否为有效银行卡号
     public var isValidBankCard: Bool {
+        /// ZJaDe: 判断是不是数字
         guard self.isNumber else {
             return false
         }
+        /// ZJaDe: 判断位数对不对
         let numberLength = self.count
         guard numberLength >= 13 && numberLength <= 19 else {
             return false
         }
+        /// ZJaDe: 反转并转换成数字数组
         guard let array = self.reversed().map({$0.wholeNumberValue}) as? [Int] else {
             return false
         }
-        let result: (Int, Int) = array.lazy.enumerated().reduce((0, 0)) { (arg0, arg1) -> (Int, Int) in
-            var (oddNumber, evenNumber) = arg0
+        struct Result {
+            var oddNumber: Int = 0 //奇数位和
+            var evenNumber: Int = 0 //偶数位和
+        }
+        /// ZJaDe: 数组从1开始计数，奇数位累加到oddNumber, 偶数位累加到evenNumber
+        let result: Result = array.lazy.enumerated().reduce(into: .init()) { (result, arg1) in
             var (offSet, element) = arg1
-            let i = offSet + 1
-            if i % 2 == 0 {
+            if (offSet + 1) % 2 == 0 {
                 element *= 2
                 if element >= 10 {
                     element -= 9
                 }
-                evenNumber += element
+                result.evenNumber += element
             } else {
-                oddNumber += element
+                result.oddNumber += element
             }
-            return (oddNumber, evenNumber)
         }
-        return (result.0 + result.1) % 10 == 0
+        return (result.oddNumber + result.evenNumber) % 10 == 0
     }
 }
 extension String {
