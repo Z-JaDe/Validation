@@ -104,7 +104,7 @@ extension String {
 
 // MARK: - Others
 extension String {
-    //判断是否为有效银行卡号
+    // 判断是否为有效银行卡号
     public var isValidBankCard: Bool {
         /// ZJaDe: 判断是不是数字
         guard self.isNumber else {
@@ -120,8 +120,8 @@ extension String {
             return false
         }
         struct Result {
-            var oddNumber: Int = 0 //奇数位和
-            var evenNumber: Int = 0 //偶数位和
+            var oddNumber: Int = 0 // 奇数位和
+            var evenNumber: Int = 0 // 偶数位和
         }
         /// ZJaDe: 数组从1开始计数，奇数位累加到oddNumber, 偶数位累加到evenNumber
         let result: Result = array.lazy.enumerated().reduce(into: .init()) { (result, arg1) in
@@ -164,17 +164,17 @@ extension String {
         guard String(self[6..<14]).isValidateDate else {
             return false
         }
-        //将前17位加权因子保存在数组里
+        // 将前17位加权因子保存在数组里
         let weightingCoefficient = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
-        //这是除以11后，可能产生的11位余数、验证码，也保存成数组
+        // 这是除以11后，可能产生的11位余数、验证码，也保存成数组
         let validateNums = ["1", "0", "x", "9", "8", "7", "6", "5", "4", "3", "2"]
 
-        //用来保存前17位各自乖以加权因子后的总和 并 取余数计算出校验码所在数组的位置
+        // 用来保存前17位各自乖以加权因子后的总和 并 取余数计算出校验码所在数组的位置
         let remainder: Int = zip(weightingCoefficient, self).reduce(0) { (result, arg1) -> Int in
             let (num, char) = arg1
             return result + (char.wholeNumberValue ?? 0) * num
         } % 11
-        //得到最后一位身份证号码 校验
+        // 得到最后一位身份证号码 校验
         return validateNums[remainder] == self.last!.lowercased()
     }
 }
